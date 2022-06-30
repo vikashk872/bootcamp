@@ -16,12 +16,17 @@ pipeline {
             }
             steps {
                 echo 'Retrieve source from github. run npm install and npm test' 
+               script { checkout scm 
+                        sh 'ls -la'
+                        sh 'pwd'}
             }
         }
         stage('Building image') {
             steps{
                 script {
                     echo 'build the image' 
+                    sh 'npm install'
+                    sh 'npm server.js'
                 }
             }
             }
@@ -29,6 +34,8 @@ pipeline {
             steps{
                 script {
                     echo 'push the image to docker hub' 
+                    sh 'docker build --tag vikashk872/internal:2 .'
+                    sh 'docker push vikashk872/internal:2'
                 }
             }
         }     
