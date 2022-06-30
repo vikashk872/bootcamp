@@ -27,12 +27,7 @@ pipeline {
                     echo 'build the image' 
                     sh 'npm install'
                     sh 'npm server.js'
-                }
-            }
-            }
-        stage('Push Image') {
-            steps{
-                script {
+              
                     echo 'push the image to docker hub' 
                     sh 'docker build --tag vikashk872/internal:2 .'
                     sh 'docker push vikashk872/internal:2'
