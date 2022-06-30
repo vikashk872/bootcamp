@@ -9,7 +9,7 @@ pipeline {
         stage('Run the tests') {
              agent {
                 docker { 
-                    image 'node:18-alpine3.15'
+                    image 'node:18-alpine'
                     args '-e HOME=/tmp -e NPM_CONFIG_PREFIX=/tmp/.npm'
                     reuseNode true
                 }
@@ -18,11 +18,11 @@ pipeline {
                 echo 'Retrieve source from github. run npm install and npm test' 
                script { checkout scm 
                         sh 'ls -la'
-                        sh 'pwd'}
+                        sh 'pwd'
            
                     echo 'build the image' 
                     sh 'npm install'
-                    sh 'npm server.js'
+                    sh 'npm test'
               
                     echo 'push the image to docker hub' 
                     sh 'docker build --tag vikashk872/internal:2 .'
@@ -31,23 +31,47 @@ pipeline {
             }
     
             
-         stage('deploy to k8s') {
-             agent {
-                docker { 
-                    image 'google/cloud-sdk:latest'
-                    args '-e HOME=/tmp'
-                    reuseNode true
-                        }
+         stage('Building image') {
+                steps {
+                    script{
+                        echo "Building images"
+                        dockerImage = docker.build("${env.imageName}:${env.BUILD_ID}")
+                        echo "image build"
+
+
                     }
-                    steps {
-                        echo "deploying k8s"
-                    }
-           
+                               
         }     
-        stage('Remove local docker image') {
+        stage('Push Image') {
             steps{
-                sh "docker rmi $imageName:latest"
-                sh "docker rmi $imageName:$BUILD_NUMBER"
+                script{
+                    echo "Pushing image"
+docker.withRegistry('',registryCredential){
+    dockerImage.push("${env.BUILD_ID}")
+                }}}}
+                }
+                
+            stage("Deploy to k8s") {
+                agent {
+                        docker {
+                            image 'google/cloud-sdk:latest'
+                            args '-e HOME=/tmp'
+                            reuseNode true
+                        }
+                }
+                steps {
+                    echo 'Get cluster credential'
+                    sh 'gcloud container clusters get-credentials app --zone us-central1-c --project roidtc-june22-u102'
+                    sh "kubectl set image deployment/ui-svc-deployment ui-svc-containers=${env.imageName}:${env.BUILD_ID}"
+
+                }
+
+            }
+            stage("Removing images"){
+                steps{
+                    echo "Removing images"
+                    
+                }
             }
         }
     }
