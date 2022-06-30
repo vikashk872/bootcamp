@@ -47,6 +47,9 @@ pipeline {
                     reuseNode true
                         }
                     }
+                    steps {
+                        echo "deploying k8s"
+                    }
            
         }     
         stage('Remove local docker image') {
