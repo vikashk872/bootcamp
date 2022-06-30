@@ -47,8 +47,7 @@ pipeline {
                     reuseNode true
                         }
                     }
-            steps {
-             }
+           
         }     
         stage('Remove local docker image') {
             steps{
