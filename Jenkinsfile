@@ -2,7 +2,7 @@ pipeline {
     agent any 
     environment {
         registryCredential = 'dockerhub'
-        imageName = 'beachcoder/internal'
+        imageName = 'vikashk872/internal'
         dockerImage = ''
         }
     stages {
@@ -17,7 +17,7 @@ pipeline {
             steps {
                 echo 'Retrieve source from github' 
                 git branch: 'master',
-                    url: 'https://github.com/beachedcoder/2022_6_27_devops_internal.git'
+                    url: 'https://github.com/vikashk872/internal.git'
                 echo 'showing files from repo?' 
                 sh 'ls -a'
                 echo 'install dependencies' 
