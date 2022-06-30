@@ -29,6 +29,7 @@ pipeline {
                     sh 'docker push vikashk872/internal:2'
                 }
             }
+        }
     
             
          stage('Building image') {
@@ -41,15 +42,16 @@ pipeline {
 
                     }
                                
-        }     
+        } 
+         }   
         stage('Push Image') {
             steps{
                 script{
                     echo "Pushing image"
-docker.withRegistry('',registryCredential){
-    dockerImage.push("${env.BUILD_ID}")
+                    docker.withRegistry('',registryCredential){
+                    dockerImage.push("${env.BUILD_ID}")
                 }}}}
-                }
+                
                 
             stage("Deploy to k8s") {
                 agent {
@@ -70,9 +72,8 @@ docker.withRegistry('',registryCredential){
             stage("Removing images"){
                 steps{
                     echo "Removing images"
-                    
+
                 }
             }
         }
     }
-}
