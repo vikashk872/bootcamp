@@ -62,7 +62,7 @@ pipeline {
                 steps {
                     echo 'Get cluster credential'
                     sh 'gcloud container clusters get-credentials app --zone us-central1-c --project roidtc-june22-u102'
-                    sh "kubectl set image deployment/ui-svc-deployment ui-svc-containers=${env.imageName}:${env.BUILD_ID}"
+                    sh "kubectl set image deployment/space-invaders space-invaders=${env.imageName}:${env.BUILD_ID}"
 
                 }
 
