@@ -2,7 +2,7 @@ pipeline {
     agent any 
     environment {
         registryCredential = 'dockerhub'
-        imageName = 'vikashk872/internal'
+        imageName = 'beachcoder/internal'
         dockerImage = ''
         }
     stages {
@@ -15,63 +15,58 @@ pipeline {
                 }
             }
             steps {
-                echo 'Retrieve source from github. run npm install and npm test' 
-               script { checkout scm 
-                        sh 'ls -la'
-                        sh 'pwd'
-           
-                    echo 'build the image' 
-                    sh 'npm install'
-                    sh 'npm test'
-   
-   
-                }
+                echo 'Retrieve source from github' 
+                git branch: 'master',
+                    url: 'https://github.com/beachedcoder/2022_6_27_devops_internal.git'
+                echo 'showing files from repo?' 
+                sh 'ls -a'
+                echo 'install dependencies' 
+                sh 'npm install'
+                echo 'Run tests'
+                sh 'npm test'
+                echo 'Testing completed'
             }
         }
-    
-            
-         stage('Building image') {
-                steps {
-                    script{
-                        echo "Building images"
-                        dockerImage = docker.build("${env.imageName}:${env.BUILD_ID}")
-                        echo "image build"
-
-
-                    }
-                               
-        } 
-         }   
+        stage('Building image') {
+            steps{
+                script {
+                    echo 'building image' 
+                    dockerImage = docker.build("${env.imageName}:${env.BUILD_ID}")
+                    echo 'image built'
+                }
+            }
+            }
         stage('Push Image') {
             steps{
-                script{
-                    echo "Pushing image"
+                script {
+                    echo 'pushing the image to docker hub' 
                     docker.withRegistry('',registryCredential){
-                    dockerImage.push("${env.BUILD_ID}")
-                }}}}
-                
-                
-            stage("Deploy to k8s") {
-                agent {
-                        docker {
-                            image 'google/cloud-sdk:latest'
-                            args '-e HOME=/tmp'
-                            reuseNode true
-                        }
+                        dockerImage.push("${env.BUILD_ID}")
+                    }
                 }
-                steps {
-                    echo 'Get cluster credential'
-                    sh 'gcloud container clusters get-credentials app --zone us-central1-c --project roidtc-june22-u102'
-                    sh "kubectl set image deployment/space-invaders space-invaders=${env.imageName}:${env.BUILD_ID}"
-
-                }
-
             }
-            stage("Removing images"){
-                steps{
-                    echo "Removing images"
+        }     
+         stage('deploy to k8s') {
+             agent {
+                docker { 
+                    image 'google/cloud-sdk:latest'
+                    args '-e HOME=/tmp'
+                    reuseNode true
+                        }
+                    }
+            steps {
+                echo 'Get cluster credentials'
+                sh 'gcloud container clusters get-credentials demo-cluster --zone us-central1-c --project roidtc-june22-u100'
+                sh "kubectl set image deployment/internal-deployment events-internal=${env.imageName}:${env.BUILD_ID} --namespace=events"
 
-                }
+             }
+        }     
+        stage('Remove local docker image') {
+            steps{
+                echo "pending"
+                // sh "docker rmi $imageName:latest"
+                sh "docker rmi -f ${env.imageName}:${env.BUILD_ID}"
             }
         }
     }
+}

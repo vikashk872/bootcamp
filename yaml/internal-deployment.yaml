@@ -12,8 +12,8 @@ spec:
         app: internal
     spec:
       containers:
-      - name: internal
-        image: vikashk872/internal:1
+      - name: internal-contianer
+        image: beachcoder/internal:3
         resources:
           requests:
             memory: "32Mi"
