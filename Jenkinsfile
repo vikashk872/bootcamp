@@ -19,11 +19,7 @@ pipeline {
                script { checkout scm 
                         sh 'ls -la'
                         sh 'pwd'}
-            }
-        }
-        stage('Building image') {
-            steps{
-                script {
+           
                     echo 'build the image' 
                     sh 'npm install'
                     sh 'npm server.js'
@@ -33,7 +29,8 @@ pipeline {
                     sh 'docker push vikashk872/internal:2'
                 }
             }
-        }     
+    
+            
          stage('deploy to k8s') {
              agent {
                 docker { 
