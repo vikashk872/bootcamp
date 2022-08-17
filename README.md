@@ -1,4 +1,4 @@
-# internal
+# Internal
 1. Getting started:  
     1. Using Google Cloud Shell (the simplest option):  
         prerequisites: node and npm  
