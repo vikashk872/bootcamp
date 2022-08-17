@@ -48,6 +48,7 @@ pipeline {
                 }
             }
         }
+		}
              
          stage('deploy to k8s') {
              agent {
