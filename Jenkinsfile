@@ -1,9 +1,10 @@
 pipeline {
     agent any 
     environment {
+        registry = "vikashk872/internal"
         registryCredential = 'dockerhub'
         imageName = 'vikashk872/internal'
-        dockerImage = ''
+        dockerImage = 'vikashk872/internal'
         }
     stages {
         stage('Run the tests') {
@@ -40,12 +41,14 @@ pipeline {
             steps{
                 script {
                     echo 'pushing the image to docker hub' 
-                    docker.withRegistry('',registryCredential){
+      withDockerRegistry([ credentialsId: registryCredential , url: "https://index.docker.io/" ]) {
+      docker.withRegistry('',registryCredential){
                         dockerImage.push("${env.BUILD_ID}")
-                    }
+   }
                 }
             }
-        }     
+        }
+             
          stage('deploy to k8s') {
              agent {
                 docker { 
