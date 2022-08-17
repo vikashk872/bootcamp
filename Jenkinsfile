@@ -17,8 +17,7 @@ pipeline {
             }
             steps {
                 echo 'Retrieve source from github' 
-                git branch: 'master',
-                    url: 'https://github.com/vikashk872/internal.git'
+		checkout scm
                 echo 'showing files from repo?' 
                 sh 'ls -a'
                 echo 'install dependencies' 
